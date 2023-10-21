@@ -22,6 +22,7 @@ const Login = () => {
     });
     if (res.data.message == "Login successful") {
       toast.success(res.data.message);
+      router.push("/home");
     } else {
       toast.error(res.data.message);
     }
