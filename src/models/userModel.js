@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import moongoose from "moongoose";
 
 const userSchema = new mongoose.Schema({
     username : {
@@ -23,5 +22,5 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-const User = moongoose.model.users || mongoose.model('users', userSchema);
+const User = mongoose.models.users || mongoose.model('users', userSchema);
 export default User;

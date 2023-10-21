@@ -1,21 +1,44 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState } from "react";
-
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
 const Signup = () => {
+  const router = useRouter();
   const userNameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
-  const [userType, setUserType] = useState("jobProvider");
+  const [role, setRole] = useState("job-provider");
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     const username = userNameRef.current.value;
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
-    // Now, you can use 'username', 'email', 'password', and 'userType' for further processing.
-    console.log("Selected UserType:", userType);
+    // Check if any of the input fields are empty, and if so, show an error toast.
+    if (!username || !email || !password) {
+      toast.error("Fill in all details");
+      return; // Exit the function to prevent the API request.
+    }
+
+    const res = await axios.post("/api/user/signup", {
+      username,
+      email,
+      password,
+      role,
+    });
+    if (res.data.message == "User Registered") {
+      toast.success(res.data.message);
+      router.push("/login");
+    } else {
+      toast.info(res.data.message || res.data.error);
+      userNameRef.current.value = "";
+      emailRef.current.value = "";
+      passwordRef.current.value="";
+    }
   };
 
   return (
@@ -65,9 +88,9 @@ const Signup = () => {
               <label className="flex items-center space-x-2">
                 <input
                   type="radio"
-                  value="jobProvider"
-                  checked={userType === "jobProvider"}
-                  onChange={() => setUserType("jobProvider")}
+                  value="job-provider"
+                  checked={role === "job-provider"}
+                  onChange={() => setRole("job-provider")}
                 />
                 <span className="text-gray-900 font-semibold">
                   Job Provider
@@ -76,9 +99,9 @@ const Signup = () => {
               <label className="flex items-center space-x-2">
                 <input
                   type="radio"
-                  value="jobSeeker"
-                  checked={userType === "jobSeeker"}
-                  onChange={() => setUserType("jobSeeker")}
+                  value="job-seeker"
+                  checked={role === "job-seeker"}
+                  onChange={() => setRole("job-seeker")}
                 />
                 <span className="text-gray-900 font-semibold">Job Seeker</span>
               </label>
@@ -98,6 +121,18 @@ const Signup = () => {
           </Link>
         </p>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };
