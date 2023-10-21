@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 const Signup = () => {
   const router = useRouter();
   const userNameRef = useRef();
@@ -34,7 +34,7 @@ const Signup = () => {
       toast.success(res.data.message);
       router.push("/login");
     } else {
-      toast.info(res.data.message || res.data.error);
+      toast.error(res.data.message || res.data.error);
       userNameRef.current.value = "";
       emailRef.current.value = "";
       passwordRef.current.value="";

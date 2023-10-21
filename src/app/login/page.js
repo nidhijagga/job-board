@@ -1,18 +1,33 @@
 "use client";
-
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const router = useRouter();
   const emailRef = useRef();
   const passwordRef = useRef();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     const email = emailRef.current.value;
     const password = passwordRef.current.value;
 
-    // Do something with the email and password, such as sending them to an API for authentication.
+    const res = await axios.post("/api/user/login", {
+      email: email,
+      password: password,
+    });
+    if (res.data.message == "Login successful") {
+      toast.success(res.data.message);
+    } else {
+      toast.error(res.data.message);
+    }
+
+    emailRef.current.value = "";
+    passwordRef.current.value = "";
   };
 
   return (
@@ -58,6 +73,18 @@ const Login = () => {
           </Link>
         </p>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };
