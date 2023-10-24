@@ -18,5 +18,5 @@ const applicationSchema = new mongoose.Schema({
     }
 });
 
-const Application = mongoose.models.Application || mongoose.model('applications', applicationSchema);
+const Application = mongoose.models.applications || mongoose.model('applications', applicationSchema);
 export default Application;

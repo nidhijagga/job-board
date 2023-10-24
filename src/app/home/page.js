@@ -1,22 +1,27 @@
 "use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useRouter } from "next/navigation";
-import JobPosted from "../jobPosted/page";
-import AddJob from "../addJob/page";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation';
+import JobPosted from '../jobPosted/page';
+import AddJob from '../addJob/page';
+import AllJobs from '../allJobs/page';
+import JobApplied from '../jobApplied/page';
+
 const Home = () => {
   const router = useRouter();
   const [user, setUser] = useState();
-  const [viewAddJob, setViewAddJob] = useState(false);
+  const [viewAddJob, setViewAddJob] = useState(true); // Set the default view to "Add Job"
+  const [viewAllJobs, setViewAllJobs] = useState(false); // Initially, "All Jobs" view is hidden
+  const [viewJobsApplied, setViewJobsApplied] = useState(false); // Initially, "Jobs Applied" view is hidden
 
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get("/api/user/logout");
+      const response = await axios.get('/api/user/logout');
       toast.success(response.data.message);
-      router.push("/login");
+      router.push('/login');
     } catch (error) {
       toast.error(error.message);
     }
@@ -24,14 +29,16 @@ const Home = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await axios.get("/api/user/userdata");
+      const response = await axios.get('/api/user/userdata');
       setUser(response.data.user);
     };
     getData();
   }, []);
 
-  const handleToggleView = (addJobView) => {
+  const handleToggleView = (addJobView, allJobsView, jobsAppliedView) => {
     setViewAddJob(addJobView);
+    setViewAllJobs(allJobsView);
+    setViewJobsApplied(jobsAppliedView);
   };
 
   return (
@@ -40,43 +47,48 @@ const Home = () => {
       <header className="bg-indigo-600 text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center">
-            <h1 className="text-2xl font-semibold font-serif mr-4">
-              Job Board
-            </h1>
-
-            {user && user.role === "job-provider" && (
+            <h1 className="text-2xl font-semibold font-serif mr-4">Job Board</h1>
+            {user && user.role === 'job-provider' && (
               <>
                 <button
                   className={`text-sm bg-white text-indigo-800 rounded-lg hover-bg-indigo-100 p-2 font-semibold cursor-pointer mr-2 ${
-                    !viewAddJob ? "opacity-50" : ""
+                    !viewAddJob ? 'opacity-50' : ''
                   }`}
-                  onClick={() => handleToggleView(true)}
+                  onClick={() => handleToggleView(true, false, false)}
                   disabled={viewAddJob}
-                >
-                  Job Posted
-                </button>
-                <button
-                  className={`text-sm bg-white text-indigo-800 rounded-lg hover-bg-indigo-100 p-2 font-semibold cursor-pointer ${
-                    viewAddJob ? "opacity-50" : ""
-                  }`}
-                  onClick={() => handleToggleView(false)}
-                  disabled={!viewAddJob}
                 >
                   Add Job
                 </button>
+                <button
+                  className={`text-sm bg-white text-indigo-800 rounded-lg hover-bg-indigo-100 p-2 font-semibold cursor-pointer`}
+                  onClick={() => handleToggleView(false, false, false)}
+                  disabled={!viewAddJob}
+                >
+                  Job Posted
+                </button>
               </>
             )}
-            {user && user.role === "job-seeker" && (
-              <button
-                className="text-sm bg-white text-indigo-800 rounded-lg hover-bg-indigo-100 p-2 font-semibold cursor-pointer"
-                onClick={() => {
-                  // Handle the "Jobs Applied" button click here
-                  // You can navigate to the relevant page or perform an action
-                  console.log("Jobs Applied button clicked");
-                }}
-              >
-                Jobs Applied
-              </button>
+            {user && user.role === 'job-seeker' && (
+              <div>
+                <button
+                  className={`text-sm bg-white text-indigo-800 rounded-lg hover-bg-indigo-100 p-2 font-semibold cursor-pointer mr-2 ${
+                    !viewAllJobs ? 'opacity-50' : ''
+                  }`}
+                  onClick={() => handleToggleView(false, true, false)}
+                  disabled={viewAllJobs}
+                >
+                  All Jobs
+                </button>
+                <button
+                  className={`text-sm bg-white text-indigo-800 rounded-lg hover-bg-indigo-100 p-2 font-semibold cursor-pointer ${
+                    !viewJobsApplied ? 'opacity-50' : ''
+                  }`}
+                  onClick={() => handleToggleView(false, false, true)}
+                  disabled={viewJobsApplied}
+                >
+                  Jobs Applied
+                </button>
+              </div>
             )}
           </div>
           <button
@@ -90,13 +102,13 @@ const Home = () => {
 
       {/* Main content */}
       <div className="flex-1 bg-gray-100 p-4">
-        {user && user.role === "job-provider" && viewAddJob ? (
-          // Render the Add Job component here
-          // <YourAddJobComponent />
-          <JobPosted/>
+        {user && user.role === 'job-provider' ? (
+          viewAddJob ? <AddJob /> : <JobPosted />
+        ) : user && user.role === 'job-seeker' ? (
+          // Display different components based on the selected view
+          viewAllJobs ? <AllJobs /> : viewJobsApplied ? <JobApplied/> : <p>Default View</p>
         ) : (
-          // Render the Jobs Posted component here
-         <AddJob/>
+          <p>Default View for Other Users</p>
         )}
       </div>
 
@@ -123,3 +135,4 @@ const Home = () => {
 };
 
 export default Home;
+
